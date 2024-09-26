@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Costumers_Config" doc:name="Database Config" doc:id="387f690b-23d8-4e35-925b-8a7128802da1" >
+		<db:my-sql-connection host="mudb.learn.mulesoft.com" port="3306" user="mule" password="mule" database="training" />
+	</db:config>
+	<flow name="apicostumersFlow" doc:id="088951a1-6bf3-4f31-8f8f-a452cb540214" >
+		<http:listener doc:name="Listener" doc:id="3372d85c-0264-4d00-9aae-fcc0464ff667" config-ref="HTTP_Listener_config" path="/api/v1/sps/customers"/>
+		<set-payload value="List of Costumers" doc:name="Set Payload" doc:id="a3041ef4-f8f1-4bdf-b0ac-20b3d7daae11" />
+		<db:select doc:name="Select Costumers" doc:id="cd068c22-a865-4eea-a3ed-0e03d14ad8d7" config-ref="Database_Costumers_Config">
+			<db:sql ><![CDATA[SELECT * FROM customers;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="2590e0ca-a1e0-4ee7-85b3-2506de2aa534" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="7759b438-9c88-4cf7-aaf4-2a52a8a0982a" message='#[output application/java&#10;---&#10;"Username: " ++ Mule::p("secure::example.username")&#10;++ " - " ++&#10;"Password: " ++ Mule::p("secure::example.password")]' />
+	</flow>
+</mule>
